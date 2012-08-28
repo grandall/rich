@@ -17,6 +17,13 @@ module Rich
       end
     end
 
+    initializer "rich.integrations" do
+      ActiveSupport.on_load :action_view do
+        ActionView::Base.send :include, Rich::Integrations::ViewHelper
+        ActionView::Base.send :include, Rich::Integrations::FormHelper
+        ActionView::Helpers::FormBuilder.send :include, Rich::Integrations::FormBuilder
+      end
+    end
 
   end
 end

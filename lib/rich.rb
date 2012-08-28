@@ -7,6 +7,13 @@ require "rich/engine"
 
 module Rich
 
+  module Integrations
+    autoload :FormBuilder, 'rich/integrations/form_builder'
+    autoload :FormHelper, 'rich/integrations/form_helper'
+    autoload :ViewHelper, 'rich/integrations/view_helper'
+  end
+
+
   # configure image styles
   def self.image_styles
       @@image_styles.merge({ :rich_thumb => "100x100#" })
