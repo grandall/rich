@@ -28,7 +28,7 @@ rich.AssetPicker.prototype = {
 
 	setAsset: function(dom_id, asset){
 		$(dom_id).val(asset);
-		$(dom_id).siblings('img.rich-image-preview').first().attr({src: asset});
+		$(dom_id + " ~ul img.rich-image-preview").first().attr({src: asset});
   }
 
 };
