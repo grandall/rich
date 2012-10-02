@@ -32,10 +32,14 @@ module Rich
 
         object = instance_tag.retrieve_object(nil)
         editor_options = Rich.options(options[:config], object_name, object.id)
-        image = object.send(method) || "http://placehold.it/260x180"
+        image = object.send(method).nil? ? editor_options[:placeholder_image] : Rich::RichFile.find(object.send(method)).rich_file.url(:content)
 
         output_buffer = ActiveSupport::SafeBuffer.new
-        output_buffer << instance_tag.to_input_field_tag('text', input_html)
+        if editor_options[:hidden_input] == true
+          output_buffer << instance_tag.to_input_field_tag('hidden', input_html)
+        else
+          output_buffer << instance_tag.to_input_field_tag('text', input_html)
+        end
 
         output_buffer << link_to(I18n.t('picker_browse'), Rich.editor[:richBrowserUrl], :class => 'btn')
         output_buffer << content_tag("ul", :class => 'thumbnails') do

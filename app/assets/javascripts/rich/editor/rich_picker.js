@@ -21,20 +21,14 @@ rich.AssetPicker.prototype = {
 			params.scope_type = options.scope_type
 			params.scope_id = options.scope_id;
 		}
+    params.hidden_input = options.hidden_input
 		params.dom_id = dom_id;
 		var url = addQueryString(options.richBrowserUrl, params );
 		window.open(url, 'filebrowser', "width=860,height=500")
   },
 
-	setAsset: function(dom_id, asset, id){
-		var split_field_name = $(dom_id).attr('id').split('_')
-		if (split_field_name[split_field_name.length - 1] == "id") {
-			$(dom_id).val(id);
-		} else {
-			$(dom_id).val(asset);
-		}
-
-		//$(dom_id).siblings('img.rich-image-preview').first().attr({src: asset});
+	setAsset: function(dom_id, asset, val){
+    $(dom_id).val(val);
 		$(dom_id + " ~ul img.rich-image-preview").first().attr({src: asset});
   }
 
