@@ -32,7 +32,14 @@ module Rich
 
         object = instance_tag.retrieve_object(nil)
         editor_options = Rich.options(options[:config], object_name, object.id)
-        image = object.send(method).nil? ? editor_options[:placeholder_image] : Rich::RichFile.find(object.send(method)).rich_file.url(:content)
+        if object.send(method).nil?
+          image = nil
+          image_url = editor_options[:placeholder_image]
+        else
+          image = object.send(method)
+          image_url = image.rich_file.url(:content)
+          input_html.merge!({:value => image.id}) if editor_options[:hidden_input]
+        end
 
         output_buffer = ActiveSupport::SafeBuffer.new
         if editor_options[:hidden_input] == true
@@ -44,7 +51,7 @@ module Rich
         output_buffer << link_to(I18n.t('picker_browse'), Rich.editor[:richBrowserUrl], :class => 'btn')
         output_buffer << content_tag("ul", :class => 'thumbnails') do
           content_tag("li", :class => 'span12') do
-            image_tag(image, :class => 'rich-image-preview', :size => '260x180')
+            image_tag(image_url, :class => 'rich-image-preview', :size => '260x180')
           end
         end
         output_buffer << javascript_tag("$(document).ready(function(){$('##{input_html['id']} + a').click(function(e){ e.preventDefault(); assetPicker.showFinder('##{input_html['id']}', #{editor_options.to_json.html_safe})})})")
