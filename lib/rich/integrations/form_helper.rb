@@ -49,9 +49,11 @@ module Rich
         end
 
         output_buffer << link_to(I18n.t('picker_browse'), Rich.editor[:richBrowserUrl], :class => 'btn')
-        output_buffer << content_tag("ul", :class => 'thumbnails') do
-          content_tag("li", :class => 'span12') do
-            image_tag(image_url, :class => 'rich-image-preview', :size => '260x180')
+        if image_url.present?
+          output_buffer << content_tag("ul", :class => 'thumbnails') do
+            content_tag("li", :class => 'span12') do
+              image_tag(image_url, :class => 'rich-image-preview', :size => '260x180')
+            end
           end
         end
         output_buffer << javascript_tag("$(document).ready(function(){$('##{input_html['id']} + a').click(function(e){ e.preventDefault(); assetPicker.showFinder('##{input_html['id']}', #{editor_options.to_json.html_safe})})})")
