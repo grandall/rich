@@ -9,6 +9,7 @@ module Rich
 
     scope :images, where("rich_rich_files.simplified_type = 'image'")
     scope :files, where("rich_rich_files.simplified_type = 'file'")
+    scope :videos, where("rich_rich_files.simplified_type = 'video'")
     
     paginates_per 34
     
@@ -20,7 +21,7 @@ module Rich
     
     validates_attachment_presence :rich_file
     validate :check_content_type
-    validates_attachment_size :rich_file, :less_than=>15.megabyte, :message => "must be smaller than 15MB"
+    validates_attachment_size :rich_file, :less_than=>500.megabyte, :message => "must be smaller than 500MB"
     
     before_create :clean_file_name
 
@@ -33,6 +34,8 @@ module Rich
     def set_styles
       if self.simplified_type=="image"
         Rich.image_styles
+      elsif self.simplified_type=="video"
+        Rich.video_styles
       else
         {}
       end

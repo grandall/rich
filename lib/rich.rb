@@ -25,6 +25,10 @@ module Rich
     :thumb => "100x100#"
   }
 
+  # configure video styles
+  mattr_accessor :video_styles
+  @@video_styles = {}
+
   mattr_accessor :convert_options
   @@convert_options = {}
   
@@ -48,6 +52,9 @@ module Rich
   
   mattr_accessor :allowed_image_types
   @@allowed_image_types = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg']
+  
+  mattr_accessor :allowed_video_types
+  @@allowed_video_types = ['application/mp4', 'application/ogg', 'application/webm']
   
   mattr_accessor :allowed_document_types
   @@allowed_document_types = :all
@@ -85,7 +92,7 @@ module Rich
     
     if(self.allowed_styles == :all)
       # replace :all with a list of the actual styles that are present
-      all_styles = Rich.image_styles.keys
+      all_styles = Rich.image_styles.keys + Rich.video_styles.keys
       all_styles.push(:original)
       self.allowed_styles = all_styles
     end
@@ -159,6 +166,10 @@ module Rich
     
     if simplified_type == "image"
       if allowed_image_types.include?(mime)
+        true
+      end
+    elsif simplified_type == "video"
+      if allowed_video_types.include?(mime)
         true
       end
     elsif simplified_type == "file"
