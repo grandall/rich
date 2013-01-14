@@ -2,7 +2,7 @@ module Rich
   module Integrations
     module FormBuilder
       extend ActiveSupport::Concern
-      
+
       def rich_text_area(method, options = {})
         @template.send("rich_text_area", @object_name, method, objectify_options(options))
       end
