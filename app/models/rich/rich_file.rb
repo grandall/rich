@@ -18,6 +18,10 @@ module Rich
                       :convert_options => Proc.new { |a| Rich.convert_options[a] },
                       :storage => Rich.file_storage,
                       :s3_credentials => Rich.s3_credentials
+    process_in_background :rich_file, :processing_image_url => "http://placehold.it/#{size = Rich.image_styles[:content]; size.chop! if size[-1] =~ /[<>!#]/; size}&text=Processing..."
+    def delayed_default_url?
+      !(rich_file.job_is_processing || rich_file.dirty? || !rich_file.delayed_options.try(:[], :url_with_processing) || !(rich_file.instance.respond_to?(:rich_file_processing?) && rich_file.processing?))
+    end
     
     validates_attachment_presence :rich_file
     validate :check_content_type
