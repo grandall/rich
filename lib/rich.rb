@@ -68,6 +68,9 @@ module Rich
   mattr_accessor :file_path
   @@file_path
   
+  mattr_accessor :expiring_url_lifetime
+  @@expiring_url_lifetime = 10
+  
   # Configuration defaults (these map directly to ckeditor settings)
   mattr_accessor :editor
   @@editor = {
@@ -92,7 +95,8 @@ module Rich
     
     if(self.allowed_styles == :all)
       # replace :all with a list of the actual styles that are present
-      all_styles = Rich.image_styles.keys + Rich.video_styles.keys
+      #all_styles = Rich.image_styles.keys + Rich.video_styles.keys
+      all_styles = Rich.image_styles.keys
       all_styles.push(:original)
       self.allowed_styles = all_styles
     end

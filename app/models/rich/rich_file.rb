@@ -5,8 +5,14 @@ require 'kaminari'
 module Rich
   class RichFile < ActiveRecord::Base
 
-    attr_accessible :rich_file_file_name, :rich_file_content_type, :rich_file_file_size, :rich_file_updated_at, :owner_type, :owner_id, :uri_cache, :simplified_type
+    attr_accessible :rich_file_file_name, :rich_file_content_type, :rich_file_file_size, :rich_file_updated_at, :owner_type, :owner_id, :uri_cache, :simplified_type, :permission
 
+    PERMISSION_TYPES = %W{private public}
+
+    validates :permission, :inclusion => {:in => PERMISSION_TYPES, :allow_nil => true}
+
+    scope :public, where("#{quoted_table_name}.permission IS NULL OR #{quoted_table_name}.permission == 'public'")
+    scope :private, where("#{quoted_table_name}.permission == 'private'")
     scope :images, where("rich_rich_files.simplified_type = 'image'")
     scope :files, where("rich_rich_files.simplified_type = 'file'")
     scope :videos, where("rich_rich_files.simplified_type = 'video'")
@@ -33,7 +39,23 @@ module Rich
     before_update :cache_style_uris
 
 
-    
+    def url(style=rich_file.default_style)
+      return rich_file.url(style) unless private? && s3?
+      rich_file.expiring_url(Rich.expiring_url_lifetime, style)
+    end
+
+    def private?
+      permission == 'private'
+    end
+
+    def s3?
+      rich_file.options[:storage] == :s3
+    end
+
+    def s3_permission
+      return 'private' if private?
+      return 'public_read'
+    end
     
     def set_styles
       if self.simplified_type=="image"
@@ -44,7 +66,7 @@ module Rich
         {}
       end
     end
-    
+
     private
     
     def cache_style_uris_and_save

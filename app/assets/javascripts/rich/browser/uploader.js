@@ -10,7 +10,8 @@ rich.Uploader = function(){
 		uploadType: $.QueryString["type"],
 		scoped: $.QueryString["scoped"],
 		scope_type: $.QueryString["scope_type"],
-		scope_id: $.QueryString["scope_id"]
+		scope_id: $.QueryString["scope_id"],
+    permission: $.QueryString["permission"]
 	};
 	
 	// create the qq uploader
@@ -21,7 +22,7 @@ rich.Uploader = function(){
 		maxConnections: 3,
 		action: $("#new_rich_file").attr("action"),
 		params: { authenticity_token: $("input[name='authenticity_token']").attr("value"),
-		 	      simplified_type: this._options.uploadType,
+		 	      simplified_type: this._options.uploadType, permission: this._options.permission,
 				  scoped: this._options.scoped,
 				  scope_type: this._options.scope_type,
 				  scope_id: this._options.scope_id

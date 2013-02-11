@@ -46,7 +46,7 @@ module Rich
     end
     
     def create
-      @file = RichFile.new(:simplified_type => params[:simplified_type]) #make sure the type is set
+      @file = RichFile.new(:simplified_type => params[:simplified_type], :permission => params[:permission]) #make sure the type is set
       
       if(params[:scoped] == 'true')
         @file.owner_type = params[:scope_type]

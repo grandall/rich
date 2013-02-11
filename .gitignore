@@ -10,3 +10,4 @@ test/dummy/public/assets/
 .idea/
 rich.tmproj
 Gemfile.lock
+vendor/bundle/

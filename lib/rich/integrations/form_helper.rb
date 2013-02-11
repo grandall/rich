@@ -37,7 +37,7 @@ module Rich
           image_url = editor_options[:placeholder_image]
         else
           image = object.send(method)
-          image_url = image.rich_file.url(:content)
+          image_url = image.url(:content)
           input_html.merge!({:value => image.id}) if editor_options[:hidden_input]
         end
 
