@@ -27,10 +27,10 @@ module Rich
         options = { :language => I18n.locale.to_s }.merge(options)
         input_html = (options.delete(:input_html) || {:class => 'input-file rich-picker'}).stringify_keys
 
-        instance_tag = ActionView::Base::InstanceTag.new(object_name, method, self, options.delete(:object))
+        instance_tag = ActionView::Base::InstanceTag.new(object_name, method, self, options[:object])
         instance_tag.send(:add_default_name_and_id, input_html)
 
-        object = instance_tag.retrieve_object(nil)
+        object = instance_tag.retrieve_object(options[:object])
         editor_options = Rich.options(options[:config], object_name, object.id)
         if object.send(method).nil?
           image = nil
