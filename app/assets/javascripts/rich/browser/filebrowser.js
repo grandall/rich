@@ -34,8 +34,12 @@ rich.Browser.prototype = {
 		});
 		
 		browser.selectStyle(def);
-		
-		if(opt.length < 2) {
+
+    //check if we are inserting an object
+    var dom_id_param = $.QueryString["dom_id"];
+    var split_field_name = dom_id_param ? dom_id_param.split('_') : null;
+
+		if(opt.length < 2 || (split_field_name && split_field_name[split_field_name.length - 1] == "id")) {
 			$('#styles').hide();
 			browser.selectStyle(opt[0]);
 		}
@@ -97,9 +101,9 @@ rich.Browser.prototype = {
 		
 		if($.QueryString["CKEditor"]=='picker') {
       if ($.QueryString["hidden_input"])
-			  window.opener.assetPicker.setAsset($.QueryString["dom_id"], url, id)
+			  window.opener.assetPicker.setAsset($.QueryString["dom_id"], url, id, type)
       else
-			  window.opener.assetPicker.setAsset($.QueryString["dom_id"], url, url)
+			  window.opener.assetPicker.setAsset($.QueryString["dom_id"], url, url, type)
 		} else {
 			window.opener.CKEDITOR.tools.callFunction($.QueryString["CKEditorFuncNum"], url, id, name);			
 		}
@@ -173,7 +177,7 @@ $(function(){
 	});
 
 	// hook up item insertion
-  $(document).on('click', '#items li img', function(e){
+	$('body').on('click', '#items li img', function(e){
 		browser.selectItem(e.target);
 	});
 	

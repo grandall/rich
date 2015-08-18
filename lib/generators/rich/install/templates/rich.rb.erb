@@ -2,6 +2,14 @@ require "rich"
 
 if Object.const_defined?("Rich")
   Rich.setup do |config|    
+    # == Backend configuration
+    # Rich uses Paperclip (https://github.com/thoughtbot/paperclip) by default.
+    # You will need to add it to your Gemfile, however.
+    # config.backend = :paperclip
+    #
+    # Optionally, you can use CarrierWave (https://github.com/carrierwaveuploader/carrierwave).
+    # You will need to add it to your Gemfile.
+    # config.backend = :carrierwave
     
     # == CKEditor configuration
     # 
@@ -15,22 +23,7 @@ if Object.const_defined?("Rich")
     # By default, Rich visualizes what type of element
     # you are editing. To disable this:
     #   config.editor[:startupOutlineBlocks] = false
-    
-    # == File Storage
-    # 
-    # Rich uses paperclip for uploads. You can configure
-    # paperclip to use Amazon's S3 service for file storage
-    # or use the local file system.
-    #
-    #   config.file_storage = :s3
-    #
-    # The default is to use the local filesystem
-    #   config.file_storage = :filesystem
 
-    # S3 credentials
-    # If you're using S3 to store your uploads, configure its credentials here
-    # See http://rubydoc.info/gems/paperclip/Paperclip/Storage/S3
-    #   config.s3_credentials = "path/to/s3.yml"
     
     # == Image styles
     # 
@@ -118,6 +111,13 @@ if Object.const_defined?("Rich")
     # 
     # Default (NOT recommended in production environments): 
     # config.authentication_method = :none
+
+    # == Pagination
+    #
+    # By default, file picker loads up assets in blocks of 34.
+    #
+    # Default:
+    # config.paginates_per = 34
     
   end
   

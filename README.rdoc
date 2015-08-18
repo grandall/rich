@@ -1,12 +1,12 @@
-= Rich
+== Rich
 
-{<img src="https://github.com/bastiaanterhorst/rich/raw/master/app/assets/images/rich/rich.png" />}[https://github.com/bastiaanterhorst/rich/] Rich is an opinionated implementation of CKEditor for Rails 3.2 and up. It includes a stripped down toolbar, simplified dialogs and a custom file manager. The file manager can also be used separate from CKEditor.
+{<img src="https://github.com/kreativgebiet/rich/raw/master/app/assets/images/rich/rich.png" />}[https://github.com/bastiaanterhorst/rich/] Rich is an opinionated implementation of CKEditor for Rails 3.2 and up. It includes a stripped down toolbar, simplified dialogs and a custom file manager. The file manager can also be used separate from CKEditor.
 
-Presently, Rich integrates with Active Admin, Rails Admin and vanilla Formtastic (versions 1 and 2).
+Presently, Rich integrates with Active Admin, Rails Admin and vanilla Formtastic (versions 1 and 2). Uploaded files can be stored on the filesystem, or on S3 (via Paperclips built-in S3 support).
 
 == Goals
 
-1. Keep the CKEditor source our of your project.
+1. Keep the CKEditor source out of your project.
 2. Sensible defaults. We don't want our users to insert tables, smilies or other frivolities that will do nothing but ruin a lovingly crafted design.
 3. Make it easy to customize these defaults.
 4. Implement a usable (and easily configurable) file manager that serves up images that fit your specific design.
@@ -16,7 +16,7 @@ It should be noted that while a major point of this project was to remove many t
 
 == Dependency Status
 
-{<img src="https://gemnasium.com/bastiaanterhorst/rich.png" />}[https://gemnasium.com/bastiaanterhorst/rich/]
+{<img src="https://gemnasium.com/kreativgebiet/rich.png" />}[https://gemnasium.com/kreativgebiet/rich/]
 
 == Quick install
 
@@ -25,7 +25,14 @@ Rich is available as a Ruby Gem, which makes installation very easy.
   # In your Gemfile (Rails >= 3.2)
   gem 'rich'
   # the edge (unstable) version can be had using:
-  # gem 'rich', :git => 'https://github.com/bastiaanterhorst/rich.git'
+  # gem 'rich', :git => 'https://github.com/kreativgebiet/rich.git'
+
+  # If you want to use Paperclip
+  gem 'paperclip'
+
+  # If you want to use CarrierWave
+  # Be sure to set config.backend = :carrierwave in config/initializers/rich.rb
+  gem 'carrierwave'
 
 After updating your bundle, run the installer.
 
@@ -77,6 +84,10 @@ Since Active Admin actually uses Formtastic, you can use it with Rich out of the
 
 === Rails Admin
 
+Since 1.4.7, it is the user's responsibility to create assets/javascripts/rails_admin/custom/ui.js and include rich
+
+  //= require rich/base
+
 To use Rich in your RA forms, use the following in your initializer:
 
   config.model Post do
@@ -102,13 +113,13 @@ To use the image picker on a string field, do this:
 == Screenshots
 
 This is the editor with default settings (shown here in Rails Admin).
-{<img src="https://github.com/bastiaanterhorst/rich/raw/master/screenshots/rich-editor-default.png" />}[https://github.com/bastiaanterhorst/rich/]
+{<img src="https://github.com/kreativgebiet/rich/raw/master/screenshots/rich-editor-default.png" />}[https://github.com/kreativgebiet/rich/]
 
 This is the file picker (Rich without CKEditor, again in Rails Admin).
-{<img src="https://github.com/bastiaanterhorst/rich/raw/master/screenshots/rich-picker.png" />}[https://github.com/bastiaanterhorst/rich/]
+{<img src="https://github.com/kreativgebiet/rich/raw/master/screenshots/rich-picker.png" />}[https://github.com/kreativgebiet/rich/]
 
 This is the file manager.
-{<img src="https://github.com/bastiaanterhorst/rich/raw/master/screenshots/rich-filemanager.png" />}[https://github.com/bastiaanterhorst/rich/]
+{<img src="https://github.com/kreativgebiet/rich/raw/master/screenshots/rich-filemanager.png" />}[https://github.com/kreativgebiet/rich/]
 
 == Rich in production mode
 
@@ -153,7 +164,27 @@ When you change styles after uploading files, you will need to re-process those 
 
 === Using the file manager without CKEditor
 
-Besides from within the editor, the file manager can also be used on it's own. See the <tt>rich_picker</tt> examples above. One important thing to note is that this requires a string field on the receiving object. A direct connection to the <tt>Rich::RichFile</tt> object is not supported at this time.
+Besides from within the editor, the file manager can also be used on it's own. See the <tt>rich_picker</tt> examples above.
+
+When the field you connect the picker to defines a relation (i.e. it ends in <tt>_id</tt>), the picker will return a reference to Rich::RichFile object. If the field you connect the picker does not refine a relation but is instead a string, the picker will return a URL to the file chosen in the picker.
+
+In the picker's configuration (or globally in your initializer), you can optionally pass the following:
+
+    :hidden_input => true # hide the textfield that is populated with the file ID or URL. Handy when creating relations (since the ID doesn't tell you much).
+    :preview_size => '100px' # specify the bounding box of the image preview
+    :placeholder_image => image_path('placeholder.png') # show a placeholder image that will be replaced when an asset has been selected
+
+You might use this in a relation like this in ActiveAdmin:
+
+  form do |f|
+    f.inputs do
+      f.input :title
+    end
+    f.has_many :assets do |asset_form|
+      asset_form.input :rich_file_id, :as => :rich_picker, :config => {:style => 'width: 400px !important;', :hidden_input => true, :placeholder_image => image_path('placeholder.png'), :preview_size => '200px'}
+    end
+    f.buttons
+  end
 
 === Non-image uploads
 
@@ -203,6 +234,20 @@ In the latter example (scoping to an object), it is up to you to determine if sc
 
 Also note that none of this is secure. At all. It is purely meant as a convenience to save you from wading through tons of irrelevant files. If need to hide files from prying eyes, you need something else.
 
+=== Uploading to S3
+
+Paperclip (which Rich uses to handle uploads) supports S3 out of the box. Just add the following to your environment:
+
+  Paperclip::Attachment.default_options.merge!(
+    :storage => :s3,
+    :bucket => ENV['S3_BUCKET'],
+    :url => "/system/:class/:attachment/:id/:style/:filename",
+    :s3_credentials => {
+      :access_key_id => ENV['S3_ACCESS_KEY_ID'],
+      :secret_access_key => ENV['S3_SECRET_ACCESS_KEY']
+    }
+  )
+
 == Planned features & ideas
 
 * drag & drop uploading
@@ -232,6 +277,7 @@ Your contributions (small and large) are very welcome! Please fork the project, 
 
 == Copyright
 
-Rich was created by Bastiaan Terhorst and is sponsored by Perceptor (http://perceptor.nl).
+Rich, the affluent editor. By Bastiaan Terhorst and the Contributors[https://github.com/kreativgebiet/rich/graphs/contributors].
+Sponsored by Perceptor[http://perceptor.nl].
 
 This project is licenced under the MIT License. See MIT-LICENSE for details.

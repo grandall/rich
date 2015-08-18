@@ -9,8 +9,6 @@ function addQueryString( url, params ) {
 	return url + ( ( url.indexOf( "?" ) != -1 ) ? "&" : "?" ) + queryString.join( "&" );
 }
 
-// load external plugins
-CKEDITOR.plugins.addExternal('audio', '<%= asset_path('ckeditor-contrib/plugins/audio/') %>');
-CKEDITOR.plugins.addExternal('MediaEmbed', '<%= asset_path('ckeditor-contrib/plugins/MediaEmbed/') %>');
-CKEDITOR.plugins.addExternal('richfile', '<%= asset_path('ckeditor-contrib/plugins/richfile/') %>');
-CKEDITOR.config.skin = 'BootstrapCK-Skin,<%= asset_path('ckeditor-contrib/skins/BootstrapCK/') %>';
+// Don't remove empty <i> tags so FontAwesome and similar icon fonts
+// can be used in the editor without magically being stripped out
+delete CKEDITOR.dtd.$removeEmpty['i'];
