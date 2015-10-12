@@ -3,61 +3,65 @@ module Rich
     module FormHelper
       extend ActiveSupport::Concern
 
-      include ActionView::Helpers::TagHelper
-      include ActionView::Helpers::JavaScriptHelper
-
       def rich_text_area(object_name, method, options = {})
-        options = { :language => I18n.locale.to_s }.merge(options)
-        input_html = (options.delete(:input_html) || {}).stringify_keys
-
-        instance_tag = ActionView::Base::InstanceTag.new(object_name, method, self, options.delete(:object))
-        instance_tag.send(:add_default_name_and_id, input_html)
-
-        object = instance_tag.retrieve_object(nil)
-        editor_options = Rich.options(options[:config], object_name, object.id)
-
-        output_buffer = ActiveSupport::SafeBuffer.new
-        output_buffer << instance_tag.to_text_area_tag(input_html)
-
-        output_buffer << javascript_tag("$(document).ready(function(){$('##{input_html['id']}').ckeditor(function() { }, #{editor_options.to_json} );});".html_safe)
-        output_buffer
+        Rich::Integrations::RichTextArea.new(object_name, method, self, options).render
       end
 
       def rich_picker(object_name, method, options = {})
-        options = { :language => I18n.locale.to_s }.merge(options)
-        input_html = (options.delete(:input_html) || {:class => 'input-file rich-picker'}).stringify_keys
+        Rich::Integrations::RichPicker.new(object_name, method, self, options).render
+      end
 
-        instance_tag = ActionView::Base::InstanceTag.new(object_name, method, self, options[:object])
-        instance_tag.send(:add_default_name_and_id, input_html)
+    end
 
-        object = instance_tag.retrieve_object(options[:object])
-        editor_options = Rich.options(options[:config], object_name, object.id)
-        if object.send(method).nil?
-          image = nil
+    class RichTextArea < ActionView::Helpers::Tags::Base
+      def render
+        options = @options.stringify_keys
+        add_default_name_and_id(options)
+
+        editor_options = Rich.options(options.delete('config'), @object_name, options['id'])
+
+        output = ActiveSupport::SafeBuffer.new
+        output << @template_object.content_tag("textarea", options.delete("value") { value_before_type_cast(@object) }, options)
+        output << @template_object.javascript_tag("$(document).ready(function(){CKEDITOR.replace('#{options['id']}', #{editor_options.to_json})});".html_safe)
+        output
+      end
+    end
+
+    class RichPicker < ActionView::Helpers::Tags::Base
+      def render
+        options = @options.stringify_keys
+        add_default_name_and_id(options)
+
+        editor_options = Rich.options(options.delete('config'), @object_name, options['id'])
+
+        image = value(@object)
+        if image.nil?
           image_url = editor_options[:placeholder_image]
         else
-          image = object.send(method)
           image_url = image.url(:content)
-          input_html.merge!({:value => image.id}) if editor_options[:hidden_input]
         end
 
-        output_buffer = ActiveSupport::SafeBuffer.new
-        if editor_options[:hidden_input] == true
-          output_buffer << instance_tag.to_input_field_tag('hidden', input_html)
+        output = ActiveSupport::SafeBuffer.new
+
+        if editor_options[:hidden_input]
+          output << @template_object.hidden_field_tag(options['name'], image.try(:id), options)
         else
-          output_buffer << instance_tag.to_input_field_tag('text', input_html)
+          output << @template_object.text_field_tag(options['name'], options['value'], options)
         end
 
-        output_buffer << link_to(I18n.t('picker_browse'), Rich.editor[:richBrowserUrl], :class => 'btn')
+        output << @template_object.link_to(I18n.t('picker_browse'), Rich.editor[:richBrowserUrl], :class => 'btn')
         if image_url.present?
-          output_buffer << content_tag("ul", :class => 'thumbnails') do
-            content_tag("li", :class => 'span12') do
-              image_tag(image_url, :class => 'rich-image-preview', :size => '260x180')
+          output << @template_object.content_tag('ul', :class => 'thumbnails') do
+            @template_object.content_tag('li', :class => 'span12') do
+              @template_object.image_tag(image_url, :class => 'rich-image-preview', :size => '260x180')
             end
           end
         end
-        output_buffer << javascript_tag("$(document).ready(function(){$('##{input_html['id']} + a').click(function(e){ e.preventDefault(); assetPicker.showFinder('##{input_html['id']}', #{editor_options.to_json.html_safe})})})")
-        output_buffer
+
+        output << @template_object.javascript_tag("$(document).ready(function(){$('##{options['id']} + a').click(function(e){ e.preventDefault(); assetPicker.showFinder('##{options['id']}', #{editor_options.to_json.html_safe})})})")
+
+        output
+
       end
     end
   end

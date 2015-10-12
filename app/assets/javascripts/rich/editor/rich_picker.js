@@ -28,7 +28,7 @@ rich.AssetPicker.prototype = {
 		window.open(url, 'filebrowser', "width=860,height=500")
   },
 
-	setAsset: function(dom_id, asset, id, type){
+	setAsset: function(dom_id, asset, val, type){
     $(dom_id).val(val);
     if(type=='image') {
 		  $(dom_id + " ~ul img.rich-image-preview").first().attr({src: asset});
