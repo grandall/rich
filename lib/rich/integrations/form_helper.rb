@@ -22,7 +22,7 @@ module Rich
 
         output = ActiveSupport::SafeBuffer.new
         output << @template_object.content_tag("textarea", options.delete("value") { value_before_type_cast(@object) }, options)
-        output << @template_object.javascript_tag("$(document).ready(function(){CKEDITOR.replace('#{options['id']}', #{editor_options.to_json})});".html_safe)
+        #output << @template_object.javascript_tag("$(document).ready(function(){CKEDITOR.replace('#{options['id']}', #{editor_options.to_json})});".html_safe)
         output
       end
     end

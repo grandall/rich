@@ -5,15 +5,18 @@ module Rich
   class Engine < Rails::Engine
     isolate_namespace Rich
 
-    initializer "rich.add_middleware" do |app|
-      app.config.assets.precompile += %W(
+    # sets the manifests / assets to be precompiled, even when initialize_on_precompile is false
+    initializer "rich.add_middleware", :group => :all do |app|
+      app.config.assets.precompile += %w[
+              ckeditor/ckeditor.js
+              ckeditor/config.js
               ckeditor/**/*.js
               ckeditor/**/*.css
               ckeditor/**/*.png
               ckeditor/**/*.gif
               ckeditor/**/*.html
               ckeditor/**/*.md
-      )
+      ]
       app.middleware.use 'Rack::RawUpload', :paths => ['/rich/files']
     end
 
