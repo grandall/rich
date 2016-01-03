@@ -18,6 +18,10 @@ module Rich
         options = @options.stringify_keys
         add_default_name_and_id(options)
 
+        # GLR> XXX: Delete this line when you fix CKEditor
+        options['rows'] = 50
+        options['style'] = "width:1000px;"
+
         editor_options = Rich.options(options.delete('config'), @object_name, options['id'])
 
         output = ActiveSupport::SafeBuffer.new
