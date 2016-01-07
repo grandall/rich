@@ -11,7 +11,7 @@ module Rich
         output_buffer = ActiveSupport::SafeBuffer.new
         output_buffer << text_area_tag(name, content, input_html)
 
-        #output_buffer << javascript_tag("$(function(){$('##{element_id}').ckeditor(function() { }, #{options.to_json} );});".html_safe)
+        output_buffer << javascript_tag("$(function(){$('##{element_id}').ckeditor(function() { }, #{options.to_json} );});".html_safe)
         output_buffer
       end
 

@@ -18,15 +18,11 @@ module Rich
         options = @options.stringify_keys
         add_default_name_and_id(options)
 
-        # GLR> XXX: Delete this line when you fix CKEditor
-        options['rows'] = 50
-        options['style'] = "width:1000px;"
-
         editor_options = Rich.options(options.delete('config'), @object_name, options['id'])
 
         output = ActiveSupport::SafeBuffer.new
         output << @template_object.content_tag("textarea", options.delete("value") { value_before_type_cast(@object) }, options)
-        #output << @template_object.javascript_tag("$(document).ready(function(){CKEDITOR.replace('#{options['id']}', #{editor_options.to_json})});".html_safe)
+        output << @template_object.javascript_tag("$(document).ready(function(){CKEDITOR.replace('#{options['id']}', #{editor_options.to_json})});".html_safe)
         output
       end
     end

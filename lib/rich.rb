@@ -4,6 +4,7 @@ if Object.const_defined?("RailsAdmin")
 end
 
 require "rich/engine"
+require "ckeditor"
 
 module Rich
 

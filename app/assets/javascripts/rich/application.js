@@ -6,7 +6,7 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require fileuploader
+//= require ckeditor/filebrowser/javascripts/fileuploader
 //= require rich/browser/extensions
 //= require rich/browser/uploader
 //= require rich/browser/filebrowser
